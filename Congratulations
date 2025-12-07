@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>给吴雪清的 手机兼容版祝福</title>
+    <style>
+        /* 1. 全局样式和背景 */
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #f0f8ff, #add8e6); /* 清新蓝色渐变 */
+            font-family: 'Georgia', serif; 
+            color: #333;
+            transition: background 1s ease; 
+            overflow: hidden;
+            /* 确保背景覆盖整个视口 */
+            background-attachment: fixed; 
+        }
+
+        /* 2. 主标题样式 */
+        .message {
+            position: relative;
+            z-index: 5;
+            /* 手机端字体略微调小，防止溢出 */
+            font-size: 10vw; 
+            font-weight: 900;
+            color: #ff69b4; 
+            text-shadow: 0 0 8px #ffc0cb, 0 0 16px #ffc0cb; 
+            margin-bottom: 30px; /* 调整间距 */
+            padding: 0 10px; /* 增加内边距防止文字贴边 */
+            text-align: center;
+            opacity: 0;
+            animation: 
+                fadeInScale 2s forwards, 
+                beat 1.5s infinite alternate 2s; 
+        }
+        
+        /* 3. 按钮容器和按钮通用样式 */
+        .button-container {
+            display: flex;
+            flex-direction: column; /* 在手机上垂直排列按钮 */
+            gap: 15px; /* 减小按钮间距 */
+            z-index: 5;
+            width: 80%; /* 限制容器宽度 */
+            max-width: 300px; /* 最大宽度 */
+        }
+
+        .click-button {
+            padding: 15px 0; /* 填充整个宽度 */
+            font-size: 1.1em;
+            font-weight: 600;
+            background-color: #ffd700; 
+            color: #8b4513;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            /* 关键：增加点击区域的响应速度 */
+            -webkit-tap-highlight-color: transparent; 
+        }
+
+        .click-button:hover, .click-button:active {
+            transform: scale(0.98); /* 触摸反馈 */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* 特殊按钮样式 */
+        #btn2 { background-color: #ff4500; color: white; } 
+        #btn3 { background-color: #00fa9a; color: #006400; } 
+
+
+        /* 4. 动画效果 */
+        @keyframes fadeInScale {
+            to { opacity: 1; transform: scale(1); }
+        }
+        @keyframes beat {
+            from { transform: scale(1); }
+            to { transform: scale(1.03); }
+        }
+        @keyframes flashScale {
+            0% { transform: scale(1); text-shadow: 0 0 8px #fff;}
+            50% { transform: scale(1.1); text-shadow: 0 0 15px #f0f8ff, 0 0 30px #f0f8ff;}
+            100% { transform: scale(1); text-shadow: 0 0 8px #ffc0cb, 0 0 16px #ffc0cb;}
+        }
+        
+        /* 弹出框通用样式 */
+        .popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.1);
+            padding: 30px 50px;
+            border-radius: 15px;
+            text-align: center;
+            opacity: 0;
+            z-index: 1000;
+            font-size: 1.3em; /* 手机端字体调整 */
+            font-weight: bold;
+            animation: popup 1s forwards cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+        
+        /* 爱心和星星粒子效果保留，确保视觉效果 */
+        /* (CSS 粒子代码与上一版本相同，此处省略以保持简洁，但您需要复制完整代码) */
+        
+        /* 爱心飘落 (背景特效) */
+        .heart {
+            position: absolute;
+            font-size: 25px;
+            color: #ff1493;
+            animation: fall 10s linear infinite;
+            opacity: 0.8;
+            pointer-events: none;
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(-100px) translateX(0); opacity: 0; }
+            10% { opacity: 1; }
+            100% { transform: translateY(100vh) translateX(150px); opacity: 0; }
+        }
+
+        /* 爆炸星星粒子 (点击特效) */
+        .explosion-star {
+            position: fixed;
+            font-size: 20px;
+            color: var(--color);
+            opacity: 0;
+            z-index: 2000;
+            animation: explode 1.5s ease-out forwards;
+        }
+
+        @keyframes explode {
+            0% {
+                transform: translate(0, 0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--x), var(--y)) scale(0.5);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="message" id="mainMessage">
+        晚上好啊，吴雪清
+    </div>
+
+    <div class="button-container">
+        <button class="click-button" id="btn1">
+            🎁 点击领取第一个祝福
+        </button>
+        <button class="click-button" id="btn2">
+            💖 开启第二个心愿
+        </button>
+        <button class="click-button" id="btn3">
+            🌟 接收最终的惊喜
+        </button>
+    </div>
+    
+    <div id="heartContainer"></div>
+
+    <script>
+        const body = document.body;
+        const mainMessage = document.getElementById('mainMessage');
+        const heartContainer = document.getElementById('heartContainer');
+        const explosionColors = ['#ffd700', '#ff4500', '#fff']; 
+
+        // --- 1. 爱心飘落背景效果 ---
+        function createFallingHeart() {
+            const heart = document.createElement('span');
+            heart.className = 'heart';
+            heart.innerHTML = '❤️'; 
+            heart.style.left = `${Math.random() * 100}vw`;
+            heart.style.animationDelay = `${Math.random() * 5}s`;
+            heart.style.animationDuration = `${7 + Math.random() * 6}s`;
+            heartContainer.appendChild(heart);
+            setTimeout(() => heart.remove(), 13000);
+        }
+        setInterval(createFallingHeart, 400);
+
+        // --- 2. 爆炸星星粒子效果 ---
+        function createExplosion(x, y, count, colorList) {
+            for (let i = 0; i < count; i++) {
+                const particle = document.createElement('span');
+                particle.className = 'explosion-star';
+                particle.innerHTML = '⭐'; 
+                
+                const color = colorList[Math.floor(Math.random() * colorList.length)];
+                particle.style.setProperty('--color', color);
+                
+                const angle = Math.random() * 2 * Math.PI;
+                const distance = Math.random() * 100 + 50; 
+                const finalX = Math.cos(angle) * distance;
+                const finalY = Math.sin(angle) * distance;
+
+                particle.style.left = `${x}px`;
+                particle.style.top = `${y}px`;
+                particle.style.setProperty('--x', `${finalX}px`);
+                particle.style.setProperty('--y', `${finalY}px`);
+
+                document.body.appendChild(particle);
+                setTimeout(() => particle.remove(), 1500);
+            }
+        }
+        
+        // 辅助函数：创建祝福弹出框
+        function createPopup(text, bgColor, textColor) {
+            const popup = document.createElement('div');
+            popup.className = 'popup';
+            popup.innerHTML = text;
+            popup.style.backgroundColor = bgColor;
+            popup.style.color = textColor;
+            popup.style.boxShadow = `0 10px 25px ${bgColor}, 0 0 50px ${bgColor}`;
+
+            // 移除弹出框
+            setTimeout(() => {
+                popup.style.opacity = '0';
+                popup.style.transform = 'translate(-50%, -50%) scale(0.5)';
+                setTimeout(() => popup.remove(), 500);
+            }, 4000);
+            return popup;
+        }
+
+        // --- 3. 核心函数：处理点击事件 ---
+        function handleButtonClick(event, callback) {
+            // 解决移动端点击失效的关键：检查按钮是否可见
+            const button = event.currentTarget;
+            if (button.style.visibility === 'hidden') return;
+            
+            // 执行按钮逻辑
+            callback(event);
+        }
+
+        // --- 4. 按钮事件绑定 (使用闭包和通用处理函数) ---
+        
+        // 第一次点击：改变主标题为“天天快乐”
+        document.getElementById('btn1').addEventListener('click', (e) => handleButtonClick(e, (event) => {
+            const rect = event.currentTarget.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            
+            createExplosion(centerX, centerY, 40, explosionColors);
+            mainMessage.innerHTML = '吴雪清 要天天快乐啊！';
+            
+            mainMessage.style.animation = 'flashScale 0.5s ease-out';
+            setTimeout(() => {
+                 mainMessage.style.animation = 'beat 1.5s infinite alternate';
+            }, 500);
+
+            body.style.background = 'linear-gradient(135deg, #fffafa, #ffe4e1)'; 
+            event.currentTarget.style.visibility = 'hidden';
+        }));
+
+        // 第二次点击：关于“不开心”的祝福
+        document.getElementById('btn2').addEventListener('click', (e) => handleButtonClick(e, (event) => {
+            body.style.background = 'linear-gradient(135deg, #f7ff00, #ff4500)'; 
+            
+            const popup = createPopup('💖 有不开心一定要给我说！', '#ff4500', 'white');
+            document.body.appendChild(popup);
+
+            event.currentTarget.style.visibility = 'hidden';
+        }));
+
+        // 第三次点击：关于“无忧无虑”的最终祝福
+        document.getElementById('btn3').addEventListener('click', (e) => handleButtonClick(e, (event) => {
+            body.style.background = 'linear-gradient(135deg, #00ffff, #00ff7f)'; 
+            
+            const popup = createPopup('🌈 我希望你每天都无忧无虑的！', '#00fa9a', 'white');
+            document.body.appendChild(popup);
+            
+            event.currentTarget.style.visibility = 'hidden';
+
+            const container = document.querySelector('.button-container');
+            container.style.opacity = '0';
+            container.style.pointerEvents = 'none'; 
+        }));
+
+    </script>
+
+</body>
+</html>
